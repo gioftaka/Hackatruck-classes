@@ -1,0 +1,100 @@
+//  ContentView 2.swift
+//  aula3
+//  Created by Turma02-17 on 19/10/26.
+
+import SwiftUI
+
+struct ContentView: View {
+    @State private var selectedTab = "rosa"
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+
+            telaCor(cor: Color.pink, imagem: "paintbrush")
+            .tabItem {
+                Label("rosa", systemImage: "paintbrush.fill")
+            }
+            .tag("rosa")
+
+            telaCor(cor:Color.cyan, imagem: "paintbrush.pointed")
+            .tabItem {
+                Label("azul", systemImage: "paintbrush.pointed.fill")
+            }
+            .tag("azul")
+            
+            telaCor(cor: Color.gray, imagem: "paintpalette")
+            .tabItem {
+                Label("cinza", systemImage: "paintpalette.fill")
+            }
+            .tag("cinza")
+
+            telaLista(imagem1: "paintbrush" , imagem2: "paintbrush.pointed" , imagem3: "paintpalette")
+                .tabItem {
+                    Label("lista", systemImage: "list.bullet")
+                }
+                .tag("cinza")
+            }
+        }
+    }
+
+struct telaCor: View {
+
+let cor: Color
+let imagem: String
+
+var body: some View{
+ZStack {
+                cor.ignoresSafeArea()
+                
+                Circle()
+                    .fill(.black)
+                    .frame(width: 300, height:300)
+
+                Image(systemName: imagem)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width:200)
+                    .padding(.bottom)
+                    .foregroundStyle(cor)
+}
+}
+}
+
+struct telaLista: View {
+
+let imagem1: String
+let imagem2: String
+let imagem3: String
+
+var body: some View {
+            NavigationStack {
+                VStack{
+                    List {
+                        HStack {
+                            Text("Item")
+                            Spacer()
+                            Image(systemName: imagem1)
+                        }
+
+                        HStack{
+                            Text("Item")
+                            Spacer()
+                            Image(systemName: imagem2)
+                        }
+
+                        HStack{
+                            Text("Item")
+                            Spacer()
+                            Image(systemName: imagem3)
+                        }
+                       
+                     }
+                    .navigationTitle("List")
+                }              
+            }
+}
+}
+
+#Preview {
+    ContentView()
+}
