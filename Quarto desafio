@@ -1,0 +1,229 @@
+import SwiftUI
+
+struct ContentView: View {
+
+    let conteudos: [Conteudo] = [
+    Conteudo(categoria: "Serie", nome: "Stranger Things", capa: "https://i.pinimg.com/236x/da/02/ce/da02ce9242c018e4b52dfe3bfb56c132.jpg", ano: "2016", genero: "Ficção Científica", pais: "🇺🇸", imdb: 8.7),
+    Conteudo(categoria: "Serie", nome: "Breaking Bad", capa: "https://i.pinimg.com/1200x/37/62/75/37627587496965efcc0ae42ac9dff525.jpg", ano: "2008", genero: "Drama", pais: "🇺🇸", imdb: 9.5),
+    Conteudo(categoria: "Filme", nome: "O Poderoso Chefão", capa: "https://i.pinimg.com/736x/a6/32/97/a63297ce5c4ca30560b6938cb9d927a2.jpg", ano: "1972", genero: "Crime", pais: "🇺🇸", imdb: 9.2),
+    Conteudo(categoria: "Serie", nome: "Dark", capa: "https://i.pinimg.com/736x/9e/76/e4/9e76e4fcca0d38d2d9eb9a673ddb03c9.jpg", ano: "2017", genero: "Ficção Científica", pais: "🇩🇪", imdb: 8.7),
+    Conteudo(categoria: "Filme", nome: "Parasita", capa: "https://i.pinimg.com/1200x/e9/e6/38/e9e63888308b1a57f442f3debb51791e.jpg", ano: "2019", genero: "Suspense", pais: "🇰🇷", imdb: 8.5),
+    Conteudo(categoria: "Filme", nome: "Cidade de Deus", capa: "https://i.pinimg.com/736x/1a/e5/00/1ae500de416ddd7a14a8c646f443cc1e.jpg", ano: "2002", genero: "Drama", pais: "🇧🇷", imdb: 8.6),
+    Conteudo(categoria: "Serie", nome: "La Casa de Papel", capa: "https://i.pinimg.com/1200x/32/2b/ac/322bac5ea8ae6df49fc6fadf55474a21.jpg", ano: "2017", genero: "Ação", pais: "🇪🇸", imdb: 8.2),
+    Conteudo(categoria: "Filme", nome: "A Viagem de Chihiro", capa: "https://i.pinimg.com/736x/78/92/82/789282ea5e2c44e0c2f2ceba4185936c.jpg", ano: "2001", genero: "Animação", pais: "🇯🇵", imdb: 8.6),
+    Conteudo(categoria: "Serie", nome: "Peaky Blinders", capa: "https://i.pinimg.com/1200x/48/af/7f/48af7f8022d12b33746b442b7c90d546.jpg", ano: "2013", genero: "Crime", pais: "🇬🇧", imdb: 8.8),
+    Conteudo(categoria: "Filme", nome: "Interestelar", capa: "https://i.pinimg.com/1200x/93/c4/c8/93c4c8ac622d2dd48846d53ece5b4183.jpg", ano: "2014", genero: "Ficção Científica", pais: "🇺🇸", imdb: 8.6)
+]
+
+    var body: some View {
+        
+        NavigationStack {
+            ZStack {
+                LinearGradient(colors: [.black, .gray, .white], startPoint: .bottom, endPoint: .top)
+                    .ignoresSafeArea()
+                
+                VStack(alignment: .center, spacing: 12) {
+                        Image("HackaTV")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height:150)
+                            .padding(20)
+                        Spacer()
+                
+                ScrollView {
+                    
+                        HStack {
+                        Text("**FILMES**")
+                            .font(.headline)
+                            .foregroundStyle(.yellow)
+                            .glowBorder(Color:.black, LineWidth:10)
+                            .padding(20)
+                        Spacer()
+                        }
+
+                        if conteudos.contains(where: { $0.categoria == "Filme" }) {
+                        VStack (spacing:10) {
+                        ForEach(conteudos.filter { $0.categoria == "Filme" }, id: \.nome) { e in
+                            NavigationLink(destination: DetalheView(conteudo: e)) {
+                                LinhaConteudo(conteudo: e)
+                            }
+                            .buttonStyle(.plain)
+                            .padding()
+                        }
+                        }
+                        }
+                        else {
+                            HStack {
+                            Text("Não há filmes.")
+                            .padding(.leading, 20)
+                            Spacer()
+                            }
+                            
+                        }
+
+                        HStack {
+                        Text("**SÉRIES**")
+                            .font(.headline)
+                            .foregroundStyle(.yellow)
+                            .glowBorder(Color:.black, LineWidth:10)
+                            .padding(20)
+                        Spacer()
+                        }
+
+                        if conteudos.contains(where: { $0.categoria == "Serie" }) {
+                        VStack (spacing:5) {
+                        ForEach(conteudos.filter { $0.categoria == "Serie" }, id: \.self) { e in
+                            NavigationLink(destination: DetalheView(conteudo: e)) {
+                                LinhaConteudo(conteudo: e)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        }
+                        }
+
+                        else {
+                            HStack {
+                            Text("Não há séries.")
+                            .padding(.leading, 20)
+                            Spacer()
+                            }
+                        }
+                        Text("**Recomendados**")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                            .padding(20)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(conteudos, id: \.nome) { e in
+                                    NavigationLink(destination: DetalheView(conteudo: e)) {
+                                        AsyncImage(url: URL(string: e.capa)) { image in
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .frame(width: 110, height: 160)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .padding(.top, 40)
+                    .padding(.bottom, 20)
+                }
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+}
+
+struct LinhaConteudo: View {
+    let conteudo: Conteudo
+
+    var body: some View {
+        HStack {
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(.white)
+                .frame(width: 350, height: 50)
+                .glowBorder(Color:.black, LineWidth:10)
+                
+            HStack(spacing: 10) {
+                AsyncImage(url: URL(string: conteudo.capa)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(width: 30, height: 50)
+                .clipped()
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(conteudo.nome)
+                        .lineLimit(1)
+                        .foregroundStyle(.black)
+                    Text(conteudo.ano)
+                        .font(.system(size: 12))
+                }
+
+                Spacer()
+
+                Text(conteudo.pais)
+            }
+            .padding(.horizontal, 10)
+            .frame(width: 350, height: 50)
+        }
+        Spacer()
+    }
+}
+}
+
+struct DetalheView: View {
+    let conteudo: Conteudo
+
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.gray, .black], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                AsyncImage(url: URL(string: conteudo.capa)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(width: 260, height: 360)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .glowBorder(Color:.black, LineWidth:10)
+
+                Text(conteudo.nome)
+                    .font(.title2)
+                    .foregroundStyle(.white)
+
+                VStack(spacing: 4) {
+                    Text("**Categoria**: \(conteudo.categoria)")
+                    Text("**Ano**: \(conteudo.ano)")
+                    Text("**Gênero**: \(conteudo.genero)")
+                    Text("**País**: \(conteudo.pais)")
+                }
+                .font(.subheadline)
+                .foregroundStyle(.yellow)
+
+                Text("**IMBd**: \(conteudo.imdb, specifier: "%.1f")")
+                    .font(.headline.system(size: 20))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(.black)
+                    .foregroundStyle(.yellow)
+                    .cornerRadius(12)
+                    .glowBorder(Color:.yellow, LineWidth:10)
+                    //.shadow(color: .yellow.opacity(0.8), radius: 5, x: 0, y: 0)
+                    //.shadow(color: .yellow.opacity(0.4), radius: 15, x: 0, y: 0)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct Conteudo: Hashable {
+    let categoria: String
+    let nome: String
+    let capa: String
+    let ano: String
+    let genero: String
+    let pais: String
+    let imdb: Double
+}
+
+
+#Preview {
+    ContentView()
+}
