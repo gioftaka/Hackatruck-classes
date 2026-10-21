@@ -1,0 +1,153 @@
+//
+//  ContentView.swift
+//  aula2
+//
+//  Created by Turma02-17 on 16/10/26.
+//
+
+import SwiftUI
+
+
+struct ContentView: View {
+
+    @State private var distancia: Float = 0
+    @State private var tempo: Float = 0
+    @State private var velocidade: Float = 0
+    @State private var imagem = "interrogacao"
+    @State private var cor = Color.gray
+        
+
+    var body: some View {
+        ZStack{
+            cor
+                .ignoresSafeArea()
+
+            VStack {
+                Text("Digite a **distância** (km):")
+                TextField("\(distancia)", value: $distancia, format: .number)
+                    .padding(5)
+                    .overlay (RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.black))
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.decimalPad)
+                    .textContentType(.oneTimeCode)
+                    .padding(.bottom, 5)
+                    .frame(width: 200)               
+
+                Text("Digite o **tempo** (h):")
+                TextField("\(tempo)", value: $tempo, format: .number)
+                    .padding(5)
+                    .overlay (RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.black))
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.decimalPad)
+                    .textContentType(.oneTimeCode)
+                    .padding(.bottom, 5)
+                    .frame(width: 200)
+              
+                Button("Calcular") {
+                    velocidade = distancia/tempo
+                    switch (velocidade) {
+                    case 0..<10:
+                        imagem = "tartaruga"
+                        cor = Color.verdeClaro
+
+                    case 10..<30:
+                       imagem = "elefante"
+                       cor = Color.azulClaro
+
+                    case 30..<70:
+                        imagem = "avestruz"
+                        cor = Color.laranjaClaro
+
+                    case 70..<90:
+                        imagem = "leao"
+                        cor = Color.amareloClaro
+
+                    case 90..<130:
+                       imagem = "guepardo"
+                      cor = Color.vermelhoClaro
+                   
+                    default:
+                      imagem = "interrogacao"
+                      cor = Color.gray
+                    }
+
+                }
+
+                .foregroundColor(.orange)
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
+                .tint(.black)
+                .controlSize(.regular)
+               
+                Text("\(velocidade,format: .number.precision(.fractionLength(2))) km/h")
+                    .font(.largeTitle)
+                    .padding()
+                
+
+                Image(imagem)
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(Circle())
+                    .frame(width:500)
+                    .padding(.bottom)
+                
+                Grid (horizontalSpacing: 15, verticalSpacing: 8){
+                    GridRow{
+                        Text("**Tartaruga**")
+                        Text("**(0 - 9.9km/h)**")
+                        Color("verdeClaro")
+                            .clipShape(Circle())
+                            .frame(width:20, height:20)
+                    }
+
+                    GridRow{
+                        Text("**Elefante**")
+                        Text("**(10 - 29.9km/h)**")
+
+                        Color("azulClaro")
+                            .clipShape(Circle())
+                            .frame(width:20, height:20)
+                    }
+
+                    GridRow{
+                        Text("**Avestruz**")
+                        Text("**(30 - 69.9km/h)**")
+                        Color("laranjaClaro")
+                            .clipShape(Circle())
+                            .frame(width:20, height:20)
+                        }
+                    GridRow{
+                        Text("**Leão**")
+                        Text("**(70 - 89.9km/h)**")
+                        Color("amareloClaro")
+                            .clipShape(Circle())
+                            .frame(width:20, height:20)
+                    }
+
+                    GridRow{
+                        Text("**Guepardo**")
+                        Text("**(90 - 130km/h)**")
+                        Color("vermelhoClaro")
+                            .clipShape(Circle())
+                            .frame(width:20, height:20)
+                    }
+                }
+
+                .frame(width:280, height:160)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .aspectRatio(1, contentMode: .fit)
+                .background(.black)
+                .cornerRadius(10)
+            }
+            .padding()
+
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
