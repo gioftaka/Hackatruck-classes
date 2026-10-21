@@ -5,9 +5,12 @@
 import SwiftUI
 
 struct ContentView: View {
+
     @State private var selectedTab = "rosa"
+
     
     var body: some View {
+
         TabView(selection: $selectedTab) {
 
             telaCor(cor: Color.pink, imagem: "paintbrush")
@@ -44,7 +47,9 @@ let imagem: String
 
 var body: some View{
 ZStack {
+
                 cor.ignoresSafeArea()
+
                 
                 Circle()
                     .fill(.black)
@@ -56,8 +61,8 @@ ZStack {
                     .frame(width:200)
                     .padding(.bottom)
                     .foregroundStyle(cor)
-}
-}
+            }
+    }
 }
 
 struct telaLista: View {
