@@ -1,0 +1,192 @@
+//  ContentView.swift
+//  aula3.2
+//
+//  Created by Turma02-17 on 19/10/26.
+//
+import SwiftUI
+
+
+struct FirstView: View {
+    let inputText: String
+    var body: some View {
+
+        ZStack{
+            Color.pink
+            .ignoresSafeArea()
+            VStack{
+                ZStack {
+                    Circle()
+                        .fill(.black)
+                        .frame(width: 250, height:250)
+
+                    Image(systemName: "paintbrush")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:180, height: 180)
+                        .foregroundColor(.pink)
+                }
+            Text(inputText)
+            }
+        }
+    }
+}
+
+struct SegundaView: View {
+    let inputText: String
+    var body: some View {
+
+        ZStack{
+            Color.cyan
+            .ignoresSafeArea() 
+            VStack{
+                ZStack{
+                    Circle()
+
+                        .fill(.black)
+                        .frame(width: 250, height:250)
+
+                    Image(systemName: "paintbrush.pointed")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:180, height: 180)
+                        .foregroundColor(.cyan)
+                    }
+                Text(inputText)
+            }
+        }
+    }
+}
+
+struct TerceiraView: View {
+    let inputText: String
+    var body: some View {
+
+        ZStack{
+            Color.gray
+                .ignoresSafeArea()
+            VStack{
+                ZStack{
+                    Circle()
+                        .fill(.black)
+                        .frame(width: 250, height:250)
+
+                    Image(systemName: "color.palette")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:180, height: 180)
+                        .foregroundColor(.gray)
+                    }
+            Text(inputText)
+            }
+        }
+    }
+}
+
+struct QuartaView: View {
+    let inputText: String
+    var body: some View {
+
+        ZStack{      
+            Color.purple
+                .ignoresSafeArea()
+                
+            VStack {
+                ZStack{
+                    Circle()
+                        .fill(.black)
+                        .frame(width: 250, height:250)
+                    Image(systemName: "list.bullet")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:180, height: 180)
+                        .foregroundColor(.purple)
+                     }  
+            Text(inputText)
+            }
+        } 
+    }
+}
+
+
+struct ContentView: View {
+
+    @State private var inputText = ""
+
+    var body: some View {
+
+        NavigationStack {
+            
+            VStack {
+
+                TextField("Digite algo", text: $inputText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 300)
+
+                HStack{
+
+                    NavigationLink {
+                        FirstView(inputText: inputText)
+                    } label: {
+                        Label("",systemImage: "paintbrush")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size:60))
+                            .frame(width: 100, height:100)
+                            .background(.pink)
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+
+                    NavigationLink {
+                        SegundaView(inputText: inputText)
+
+                    } label: {
+                        Label("",systemImage: "paintbrush.pointed")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size:60))
+                            .frame(width: 100, height:100)
+                            .background(.blue)
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.white)
+                }
+
+                HStack{
+                    NavigationLink {
+                        TerceiraView(inputText: inputText)
+                    } label: {
+                        Label("",systemImage: "paintpalette")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size:60))
+                            .frame(width: 100, height:100)
+                            .background(.gray)
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.white)
+
+                    NavigationLink {
+                        QuartaView(inputText: inputText)
+                    } label: {
+                        Label("",systemImage: "list.bullet")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size:60))
+                            .frame(width: 100, height:100)
+                            .background(.purple)
+                            .cornerRadius(20)
+                        }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.white)
+                }
+
+            }
+        .navigationTitle("Menu de Cores")
+        }
+    }
+}
+
+
+#Preview {
+    ContentView()
+}
