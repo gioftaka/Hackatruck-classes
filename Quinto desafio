@@ -1,0 +1,136 @@
+//
+//  ContentView.swift
+//  aula5
+//
+//  Created by Turma02-17 on 21/10/26.
+//
+import SwiftUI
+import MapKit
+
+struct ContentView: View {
+
+    @State private var regiao = Location(nome: "Cristo Redentor", foto:"https://upload.wikimedia.org/wikipedia/commons/9/98/Cidade_Maravilhosa.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:-22.9519,longitude:-43.2105)
+    @State private var position = MapCameraPosition.region(
+
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: -22.9519,longitude: -43.2105),
+            span: MKCoordinateSpan(latitudeDelta:1, longitudeDelta: 1)))
+
+    let maravilhas: [Location] = [
+        Location(nome: "Cristo Redentor", foto:"https://upload.wikimedia.org/wikipedia/commons/9/98/Cidade_Maravilhosa.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:-22.9519,longitude:-43.2105),
+        Location(nome: "Grande Muralha da China", foto: "https://upload.wikimedia.org/wikipedia/commons/6/6f/The_Great_Wall_of_China_at_Jinshanling.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:40.4319,longitude:116.5704),
+        Location(nome: "Petra", foto: "https://pt.wikipedia.org/wiki/Novas_sete_maravilhas_do_mundo#/media/Ficheiro:Petra_El_Khasneh.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:30.3285,longitude:35.4444),
+        Location(nome: "Coliseu", foto: "https://pt.wikipedia.org/wiki/Novas_sete_maravilhas_do_mundo#/media/Ficheiro:Colosseum_in_Rome,_Italy_-_April_2007.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:41.8902,longitude:12.4922),
+        Location(nome: "Chichén Itzá", foto: "https://pt.wikipedia.org/wiki/Novas_sete_maravilhas_do_mundo#/media/Ficheiro:Chichen-Itza-Castillo-Seen-From-East.JPG", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:20.6843,longitude:-88.5678),
+        Location(nome: "Machu Picchu", foto: "https://pt.wikipedia.org/wiki/Novas_sete_maravilhas_do_mundo#/media/Ficheiro:Machu_Picchu,_Peru.jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:-13.1631,longitude:-72.5450),
+        Location(nome: "Taj Mahal", foto: "https://pt.wikipedia.org/wiki/Novas_sete_maravilhas_do_mundo#/media/Ficheiro:Wah_Taj_!!_(cropped).jpg", descricao: "Foi construída por volta de 220 a.C. pelo imperador Qin Shi Huang. Ele ordenou que seções de fortificações construídas anteriormente fossem reunidas para criar um sistema de defesa contra a invasão dos povos do norte, revela a Organização das Nações Unidas para a Educação, a Ciência e a Cultura (Unesco).\nA organização relata que o trabalho de edificação da Grande Muralha da China continuou até a dinastia Ming (1368-1644), resultando na maior obra de engenharia militar de todos os tempos. Ela está na Lista de Patrimônio Mundial da Unesco desde 1987.",latitude:27.1751,longitude:78.0421)
+    ]
+
+    @State private var localSelecionadoMapa: Location?
+    
+    var body: some View {
+        
+        ZStack {
+            Map(position: $position, selection: $localSelecionadoMapa) {
+                Marker(regiao.nome, coordinate: CLLocationCoordinate2D(latitude: regiao.latitude, longitude: regiao.longitude)).tag(regiao)
+            }
+            .ignoresSafeArea()
+
+           VStack (alignment: .leading, spacing:10){
+
+                ZStack {
+                    Rectangle()
+                        .fill(Color.buttermilk)
+                       .frame(width:300, height:50)
+                        .cornerRadius(10)
+                                      
+                    Picker("",selection: $regiao) {
+                        ForEach(maravilhas, id: \.self) { maravilha in
+                            Text(maravilha.nome)
+                                .tag(maravilha)                        
+                                .padding()
+                        }
+                    }
+                    .onChange(of: regiao) { _, novaRegiao in
+                      position = .region(
+                            MKCoordinateRegion(
+                                center: CLLocationCoordinate2D(latitude: novaRegiao.latitude, longitude: novaRegiao.longitude),
+                                span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+                            )
+                        )
+                   }
+                }
+                Spacer()                
+         }
+            .padding()
+        }
+        .sheet(item: $localSelecionadoMapa) { local in
+            SheetView(regiao: local)
+        }
+    }
+}
+
+
+
+struct Location: Hashable, Identifiable {
+    var id: String{nome}    
+    let nome: String
+    let foto: String
+    let descricao: String
+    let latitude: Double
+    let longitude: Double
+    
+}
+
+
+struct SheetView: View {
+    let regiao: Location
+    
+    var body: some View {
+
+        ZStack {
+            Rectangle()
+                .fill(Color.buttermilk)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 15) {
+
+                AsyncImage(url: URL(string: regiao.foto)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 300, height: 250)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))                       
+
+                } placeholder: {
+                    ProgressView()
+                }
+                .padding(.top)
+                
+                Text(regiao.nome)
+                    .font(.title)
+                    .foregroundStyle(.brown)
+                    .bold()
+                    .padding()
+                
+                ScrollView {
+
+                    Text(regiao.descricao)
+                        .bold()
+                        .padding(20)
+                        .background(
+                            Rectangle()
+                                .fill(.brown)
+                        )
+                        .padding(.horizontal, 20)
+                }
+            }
+        }
+    }
+}
+
+
+
+#Preview {
+    ContentView()
+}
