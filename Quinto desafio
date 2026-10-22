@@ -113,17 +113,19 @@ struct SheetView: View {
                     .bold()
                     .padding()
                 
-                ScrollView {
+        ScrollView {
+        Text(regiao.descricao)
+        .lineLimit(nil) 
+        .fixedSize(horizontal: false, vertical: true)
+        .bold()
+        .padding(20)
+        .background(
+            Rectangle()
+                .fill(.brown)
+        )
+        .padding(.horizontal, 20)
+}
 
-                    Text(regiao.descricao)
-                        .bold()
-                        .padding(20)
-                        .background(
-                            Rectangle()
-                                .fill(.brown)
-                        )
-                        .padding(.horizontal, 20)
-                }
             }
         }
     }
