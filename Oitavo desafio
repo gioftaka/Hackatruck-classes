@@ -1,0 +1,268 @@
+//
+//  ContentView.swift
+//  aula6
+//
+//  Created by Turma02-17 on 23/10/26.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    @State private var viewModel = ViewModel()
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.brown
+                    .ignoresSafeArea()
+                
+                VStack(alignment: .leading) {
+                    
+                    AsyncImage(url: URL(string: "https://foodbiz.com.br/wp-content/uploads/2026/01/comidas-picantes.jpg")) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity, maxHeight: 300)
+                            .clipped()
+                            .ignoresSafeArea()
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    
+                    ScrollView {
+                        ForEach(viewModel.receitas) { i in
+                            NavigationLink(destination: DetailView(receita: i)) {
+                                Grid(horizontalSpacing: 15, verticalSpacing: 10) {
+                                    GridRow {
+                                        AsyncImage(url: URL(string: i.imagem)) { image in
+                                            image
+                                                .resizable()
+                                                .scaledToFit()
+                                                .clipShape(Rectangle())
+                                                .frame(width: 100, height: 100)
+                                                .padding(.horizontal, 5)
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        
+                                        Text(i.nome)
+                                            .font(.title2)
+                                            .foregroundStyle(.black)
+                                            .padding()
+                                            .lineLimit(1)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                    
+                    Button(action: {showingAddRecipe = true}) {
+                        Text("Adicionar uma receita")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange)
+                            .cornerRadius(10)
+                    }
+                    .padding()
+                }
+            }
+        }
+        .task {
+            await viewModel.fetch()
+        }
+        .sheet(isPresented: $showingAddRecipe) {
+            AddReceitaView { novaReceita in
+                Task {
+                    await viewModel.adicionar(receita: novaReceita)
+                }
+            }
+        }
+    }
+}
+
+struct AddReceitaView: View {
+    @Environment(\.dismiss) private var dismiss
+    var onSave: (Receitas) -> Void
+    
+    @State private var nome = ""
+    @State private var tempoDePreparo = ""
+    @State private var rendimento = ""
+    @State private var modoDePreparo = ""
+    @State private var imagem = ""
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Informações da Receita")) {
+                    TextField("Nome da receita", text: $nome)
+                    TextField("Tempo de Preparo (ex: 45 minutos)", text: $tempoDePreparo)
+                    TextField("Rendimento (ex: 6 porções)", text: $rendimento)
+                    TextField("URL da Imagem", text: $imagem)
+                }
+                
+                Section(header: Text("Modo de Preparo")) {
+                    TextEditor(text: $modoDePreparo)
+                        .frame(height: 120)
+                }
+            }
+            .navigationTitle("Nova Receita")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancelar") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Salvar") {
+                        let novaReceita = Receitas(
+                            nome: nome,
+                            tempoDePreparo: tempoDePreparo,
+                            rendimento: rendimento,
+                            modoDePreparo: modoDePreparo,
+                            imagem: imagem
+                        )
+                        onSave(novaReceita)
+                        dismiss()
+                    }
+                    .disabled(nome.isEmpty || modoDePreparo.isEmpty)
+                }
+            }
+        }
+    }
+}
+
+struct Service {
+    func fetchReceitas(url: String) async throws -> [Receitas] {
+        guard let url = URL(string: url) else { return [] }
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let values = try JSONDecoder().decode([Receitas].self, from: data)
+        return values
+    }
+    func adicionarReceita(url: String, receita: Receitas) async throws {
+        guard let url = URL(string: url) else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(receita)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+    }
+}
+
+@Observable
+class ViewModel {
+    var receitas: [Receitas] = []
+    private let service = Service()
+    
+    func fetch() async {
+        let url = "http://127.0.0.1:1880/pegar"
+        do {
+            receitas = try await service.fetchReceitas(url: url)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    func adicionar(receita: Receitas) async {
+        let url = "http://127.0.0.1:1880/adicionar"
+        do {
+            try await service.adicionarReceita(url: url, receita: receita)
+            await fetch()
+        } catch {
+            print("Erro ao adicionar:", error.localizedDescription)
+        }
+    }
+}
+
+struct Receitas: Identifiable, Decodable {
+    var id: String
+    let nome: String
+    let tempoDePreparo: String
+    let rendimento: String
+    let modoDePreparo: String
+    let imagem: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, nome, tempoDePreparo, rendimento, modoDePreparo, imagem
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.nome = try container.decode(String.self, forKey: .nome)
+        self.tempoDePreparo = try container.decode(String.self, forKey: .tempoDePreparo)
+        self.rendimento = try container.decode(String.self, forKey: .rendimento)
+        self.modoDePreparo = try container.decode(String.self, forKey: .modoDePreparo)
+        self.imagem = try container.decode(String.self, forKey: .imagem)
+    }
+}
+
+struct DetailView: View {
+    let receita: Receitas
+
+    var body: some View {
+        ZStack {
+            AsyncImage(url: URL(string: "https://thumbs.dreamstime.com/b/old-recipe-note-background-concept-44800598.jpg")) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .blur(radius: 30)
+            } placeholder: {
+                ProgressView()
+            }
+            
+            VStack(alignment: .leading, spacing: 15) {
+                AsyncImage(url: URL(string: receita.imagem)) { image in
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .ignoresSafeArea()
+                    .frame(width: 200,height: 200)
+            } placeholder: {
+                ProgressView()
+            }
+                Text(receita.nome)
+                    .font(.largeTitle)
+                    .bold()
+                    .foregroundStyle(.white)
+                
+                Text("**Tempo**: \(receita.tempoDePreparo)")
+                    .font(.headline)
+                    .foregroundStyle(.orange)
+                    
+                
+                Text("**Rendimento**: \(receita.rendimento)")
+                    .font(.headline)
+                    .foregroundStyle(.orange)
+                
+                ScrollView {
+                    Text(receita.modoDePreparo)
+                        .font(.body)
+                        .foregroundStyle(.white)
+                        .padding()
+                        .frame()
+                        .lineLimit(nil) 
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(20)
+                }
+                .background(Color.brown.opacity(0.6))
+                .cornerRadius(10)
+            }
+            .padding()
+        }
+    }
+}
+
+
+#Preview {
+    ContentView()
+}
