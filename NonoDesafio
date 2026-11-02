@@ -1,0 +1,151 @@
+//
+//  ContentView.swift
+//  aula 13
+// Teste com dados mockados
+
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var viewModel = ViewModel()
+    let ordemTipos = ["ENTRADA", "PRINCIPAL", "SOBREMESA", "BEBIDA"]
+
+    var body: some View {
+        ZStack {
+            Color.amareloClaro
+                .ignoresSafeArea()
+
+            VStack {
+                Text("HackaTruck GastroBar")
+                    .font(.title).bold()
+
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(ordemTipos, id: \.self) { tipo in
+                            if let itens = viewModel.agrupados[tipo] {
+                                Section {
+                                    ForEach(itens) { produto in
+                                        DetalhesProduto(produto: produto)
+                                            .padding(.vertical, 8)
+                                            .background(Color.blue)
+                                    }
+                                } header: {
+                                    Text(tipo)
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical, 6)
+                                        .padding(.horizontal, 20)
+                                        .background(Color.amareloClaro)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .task { await viewModel.fetch() }
+    }
+}
+
+struct Produtos: Identifiable, Codable {
+    var id: String = UUID().uuidString
+    let nome: String
+    let imagem: String
+    let preco: Double
+    let tipo: String
+
+    enum CodingKeys: String, CodingKey {
+        case nome, imagem, preco, tipo
+    }
+}
+
+struct DetalhesProduto: View {
+    let produto: Produtos
+    @State private var showTranslation = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            AsyncImage(url: URL(string: produto.imagem)) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.gray.opacity(0.3)
+            }
+            .frame(width: 60, height: 60)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading) {
+                Text(produto.nome)
+                Text("R$ \(produto.preco, specifier: "%.2f")")
+                    .font(.subheadline)
+            }
+
+            Spacer()
+
+            Button {
+                showTranslation = true
+            } label: {
+                Image(systemName: "translate")
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 8)
+        .translationPresentation(isPresented: $showTranslation, text: produto.nome)
+    }
+}
+
+@Observable
+class ViewModel {
+    var produtos: [Produtos] = []
+    private let service = Service()
+    let url = "http://127.0.0.1:1880/pegar"
+
+    // true = dados fixos para teste local; false = busca no Node-RED
+    let modoLocal = true
+
+    var agrupados: [String: [Produtos]] {
+        Dictionary(grouping: produtos, by: \.tipo)
+    }
+
+    func fetch() async {
+        if modoLocal {
+            produtos = Produtos.mock
+            return
+        }
+        do {
+            produtos = try await service.fetchProdutos(url: url)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+}
+
+extension Produtos {
+    static let mock: [Produtos] = [
+        Produtos(nome: "Canapés de camarão", imagem: "https://i.pinimg.com/736x/57/b1/32/57b1327b81f3a4bc1e6b6cb53d21ef69.jpg", preco: 32, tipo: "ENTRADA"),
+        Produtos(nome: "Carolinas de frango", imagem: "https://i.pinimg.com/736x/1b/6a/d1/1b6ad10d39dd04a42fe011291b33df0a.jpg", preco: 35, tipo: "ENTRADA"),
+        Produtos(nome: "Quiches de espinafre", imagem: "https://i.pinimg.com/1200x/66/9a/c4/669ac4862d94bdba51278ea3fcb1fab2.jpg", preco: 35, tipo: "ENTRADA"),
+        Produtos(nome: "Risoto de camarão", imagem: "https://i.pinimg.com/736x/1e/57/a9/1e57a90b0d07f8fbb73bab8f2fe864c3.jpg", preco: 72, tipo: "PRINCIPAL"),
+        Produtos(nome: "Tortellini de queijo", imagem: "https://i.pinimg.com/1200x/bf/0f/a3/bf0fa3f07d4c95ce03a72e476d4e4ae4.jpg", preco: 69, tipo: "PRINCIPAL"),
+        Produtos(nome: "Bisteca com batatas", imagem: "https://i.pinimg.com/1200x/d4/fe/28/d4fe2857c968a7eabe4775aa172366bf.jpg", preco: 58, tipo: "PRINCIPAL"),
+        Produtos(nome: "Pudim de leite condensado", imagem: "https://i.pinimg.com/1200x/39/30/2e/39302e11334aefd1850003c6386d60fc.jpg", preco: 35, tipo: "SOBREMESA"),
+        Produtos(nome: "Brownie de chocolate amargo", imagem: "https://i.pinimg.com/236x/7e/a5/5a/7ea55af0d826ad5c92a49c9a615fad26.jpg", preco: 32, tipo: "SOBREMESA"),
+        Produtos(nome: "Torta de Nhoque", imagem: "https://i.pinimg.com/1200x/67/4e/49/674e4901ec51d779cb61c784457f139f.jpg", preco: 39, tipo: "SOBREMESA"),
+        Produtos(nome: "Mojito", imagem: "https://i.pinimg.com/1200x/95/72/6a/95726a2d0e4bc3bec3c3656c2a55b7b5.jpg", preco: 72, tipo: "BEBIDA"),
+        Produtos(nome: "Suco de abacaxi", imagem: "https://i.pinimg.com/236x/1b/56/8c/1b568c0fc81cb20ef8686519f02c4ad1.jpg", preco: 15, tipo: "BEBIDA"),
+        Produtos(nome: "Chá de hibisco", imagem: "https://i.pinimg.com/236x/e5/0e/10/e50e10fd10b7983309d544a3350f0d09.jpg", preco: 19, tipo: "BEBIDA")
+    ]
+}
+
+struct Service {
+    func fetchProdutos(url: String) async throws -> [Produtos] {
+        guard let url = URL(string: url) else { return [] }
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return try JSONDecoder().decode([Produtos].self, from: data)
+    }
+}
+
+#Preview {
+    ContentView()
+}
